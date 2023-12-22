@@ -6,11 +6,26 @@ import processdata
 import helper
 import trial
 import numpy as np
+import time
 
 st.sidebar.title("WhatsInsight")
-
 uploadedfile = st.sidebar.file_uploader("Choose a File")
 df = pd.DataFrame()
+
+show_elements=True
+
+start_btn=st.sidebar.button("Start..")
+if start_btn:
+    show_elements = False
+if show_elements:
+    st.title("Analyze Your Whatsapp Chat Conversations")
+    st.markdown("""
+                👈 Upload you Whatsapp Chat .txt file to gain insights\n
+                Don't know how to get chat.txt file ?\n
+                Follow these steps
+                """)
+    img_path = 'img1.jpg'
+    st.image(img_path, caption='Image 1')
 
 if uploadedfile != None:
     bytes_data = uploadedfile.getvalue()
@@ -22,13 +37,16 @@ if uploadedfile != None:
     Userlist.insert(0, "Overall")
 
     selected_user = st.sidebar.selectbox("Options", Userlist)
-
-    if selected_user != 'Overall':
-        st.title(selected_user)
-    else:
-        st.title("All Users")
-
-    if st.sidebar.button("Start.."):
+        
+    if start_btn:
+        progress_text="Operation in progress. Please wait."
+        progress_bar=st.progress(0,text=progress_text)
+        for progress in range(100):
+            time.sleep(0.01)
+            progress_bar.progress(progress+1,text=progress_text)
+        time.sleep(1)
+        progress_bar.empty()
+        
         num, words, media, links = helper.fetchdata(selected_user, df)
         col1, col2, col3, col4 = st.columns([4,3,4,2])
         st.title("Top Stats..")
@@ -44,6 +62,11 @@ if uploadedfile != None:
         with col4:
             st.header("Links Shared")
             st.header(links)
+    
+    if selected_user != 'Overall':
+        st.title(selected_user)
+    else:
+        st.title("All Users")
 
     formbut = st.sidebar.button("Feedback")
     if formbut:
@@ -212,7 +235,7 @@ if uploadedfile != None:
             sizes = edf['Count'].head(5)
             sizes = sizes.reset_index(drop=True)
             colors = ['#99e6ff', '#00ccff', '#00ffff', '#33ccff', '#66ccff', ]
-            explode = (0.1, 0, 0, 0, 0)  # explode the 1st slice
+            explode = (0.1, 0, 0, 0, 0)
 
             fig, ax = plt.subplots()
             wedges, _, _ = ax.pie(
@@ -246,6 +269,7 @@ if uploadedfile != None:
                 ax.annotate(f'{sizes[i]:.1f}%', xy=(x, y), xytext=(1.35 * np.sign(x), 1.4 * y),
                             horizontalalignment=horizontalalignment, **kw)
             st.pyplot(fig)
+            
 
 
 
